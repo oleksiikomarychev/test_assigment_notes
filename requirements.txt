@@ -1,0 +1,7 @@
+SQLAlchemy~=2.0.39
+fastapi~=0.115.11
+pydantic~=2.10.6
+numpy~=2.2.3
+google~=3.0.0
+protobuf~=5.29.3
+python-dotenv~=1.0.1
