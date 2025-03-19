@@ -7,18 +7,24 @@ import google.generativeai as genai
 from dotenv import load_dotenv
 
 load_dotenv()
+model = None
+
+def get_gemini_model():
+    global model
+    if model is None:
+        gemini_api_key = os.getenv("GEMINI_API_KEY")
+        if not gemini_api_key:
+            raise ValueError("GEMINI_API_KEY environment variable not set.")
+        genai.configure(api_key=gemini_api_key)
+        model = genai.GenerativeModel('gemini-1.5-flash')
+    return model
 
 def summarize_note(db: Session, note_id: int):
     note = crud.get_note(db, note_id)
     if not note:
         return None
 
-    gemini_api_key = os.getenv("GEMINI_API_KEY")
-    if not gemini_api_key:
-        raise ValueError("GEMINI_API_KEY environment variable not set.")
-
-    genai.configure(api_key=gemini_api_key)
-    model = genai.GenerativeModel('gemini-pro')
+    model = get_gemini_model()
 
     prompt = f"Summarize the following note: {note.content}"
     try:
@@ -41,8 +47,8 @@ def analyze_notes(db: Session):
     avg_note_length = np.mean(word_counts)
     all_words = " ".join(contents).split()
     most_common_words = Counter(all_words).most_common(5)
-    sorted_notes = sorted(notes, key=lambda x: len(x.content.split()))
-    top_3_longest = [{"id": note.id, "length": len(note.content.split())} for note in sorted_notes[-3:]]
+    sorted_notes = sorted(notes, key=lambda note: len(note.content.split()))
+    top_3_longest = [{"id": note.id, "length": len(note.content.split())} for note in sorted_notes[3:]]
     top_3_shortest = [{"id": note.id, "length": len(note.content.split())} for note in sorted_notes[:3]]
 
     return {
