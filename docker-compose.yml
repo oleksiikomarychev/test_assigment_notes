@@ -1,0 +1,9 @@
+services:
+  app:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./notes.db:/notes.db
+    environment:
+      DATABASE_URL: sqlite:///notes.db
